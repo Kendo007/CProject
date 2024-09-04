@@ -8,6 +8,6 @@
 #include "../../helper/hashmap.h"
 
 char* intToBinary(unsigned int n, char binary[]);
-void assembleFirstPass(const char* fileName);
+struct hashmap* assembleFirstPass(const char* fileName);
 
 #endif //ASSSEMBLERFIRSTPASS_H

@@ -72,8 +72,8 @@ bool isBlank(const char* str) {
     return false;
 }
 
-
-void assembleFirstPass(const char* fileName) {
+// Going through the file creating a symbol table of address in Hack assembly
+struct hashmap* assembleFirstPass(const char* fileName) {
     int count = 0;
     struct hashmap *symbolTable = myhashmap_new();
     createSymbolTable(symbolTable);
@@ -83,7 +83,7 @@ void assembleFirstPass(const char* fileName) {
 
     if (file == NULL) {
         fprintf(stderr, "Could not open file %s\n", fileName);
-        return;
+        return NULL;
     }
 
     while (fgets(buffer, sizeof(buffer), file)) {
@@ -113,5 +113,5 @@ void assembleFirstPass(const char* fileName) {
         printf("Key: %s Value: %s\n", user->key, user->value);
     }
 
-    hashmap_free(symbolTable);
+    return symbolTable;
 }
