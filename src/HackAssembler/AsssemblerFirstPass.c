@@ -82,8 +82,8 @@ struct hashmap* assembleFirstPass(const char* fileName) {
     FILE* file = fopen(fileName, "r");
 
     if (file == NULL) {
-        fprintf(stderr, "Could not open file %s\n", fileName);
-        return NULL;
+        printf("Error opening file %s\n", fileName);
+        exit(1);
     }
 
     while (fgets(buffer, sizeof(buffer), file)) {
@@ -104,14 +104,6 @@ struct hashmap* assembleFirstPass(const char* fileName) {
     }
 
     fclose(file);
-
-    printf("\n-- iterate over all users (hashmap_iter) --\n");
-    size_t iter = 0;
-    void *item;
-    while (hashmap_iter(symbolTable, &iter, &item)) {
-        const blob *user = item;
-        printf("Key: %s Value: %s\n", user->key, user->value);
-    }
 
     return symbolTable;
 }

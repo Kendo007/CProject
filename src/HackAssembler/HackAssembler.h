@@ -5,6 +5,6 @@
 #ifndef HACKASSEMBLER_H
 #define HACKASSEMBLER_H
 
-void HackAssembler(const char* fileName);
+void HackAssembler(char* fileName);
 
 #endif //HACKASSEMBLER_H

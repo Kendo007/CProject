@@ -3,15 +3,124 @@
 //
 
 #include "AssemblerSecondPass.h"
+
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../../helper/hashmap.h"
 #include "../../helper/myhashmap.h"
+#include "AsssemblerFirstPass.h"
 
 int freeMemory = 16;
 struct hashmap *jumpTable;
 struct hashmap *compTable;
+struct hashmap *symbolTable;
 
-void assemblerSecondPass() {
+void createJumpTable();
+void createCompTable();
 
+char *strip(char *str)
+{
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
+
+    if(*str == 0)
+        return str;
+
+    // Trim trailing space
+    char *end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+
+    end[1] = '\0';
+
+    return str;
+}
+
+bool myisNumber(const char *str) {
+    while (isdigit(*str)) str++;
+
+    if (*str == 0 || isspace((unsigned char)*str))
+        return true;
+
+    return false;
+}
+
+char* handleAInstruction(char* instruction) {
+    char* usefulInstruction = instruction + 1;
+
+    if (myisNumber(usefulInstruction)) {
+        return intToBinary(atoi(usefulInstruction), instruction);
+    }
+
+    char* temp = myhashmap_get(symbolTable, usefulInstruction);
+    if (temp != NULL)
+        return temp;
+
+    char buffer[20];
+    myhashmap_set(symbolTable, usefulInstruction, intToBinary(freeMemory++, buffer));
+    return myhashmap_get(symbolTable, usefulInstruction);
+}
+
+char* handleCInstruction(char* instruction) {
+    return "";
+}
+
+char* handleInstruction(char *instruction) {
+    if (isBlank(instruction) || instruction[0] == '(')
+        return NULL;
+
+    if (instruction[0] == '@')
+        return handleAInstruction(instruction);
+
+    return handleCInstruction(instruction);
+}
+
+void assembleSecondPass(char* fileName, struct hashmap* st) {
+    symbolTable = st;
+
+    createCompTable();
+    createJumpTable();
+
+    int p = strchr(fileName, '.') - fileName;
+    char outputName[p + 5];
+    strncpy(outputName, fileName, p);
+    outputName[p] = '\0';
+    strcat(outputName, ".hack");
+
+    char inst[100];
+    FILE* file = fopen(fileName, "r");
+    FILE* output = fopen(outputName, "w+");
+
+    if (file == NULL) {
+        printf("Error opening file %s\n", fileName);
+        exit(1);
+    }
+
+    while (fgets(inst, sizeof(inst), file)) {
+        const char* temp = strstr(inst, "//");
+        char* assembledInst;
+
+        if (temp == NULL) {
+            assembledInst = handleInstruction(strip(inst));
+        } else {
+            const int pos = temp - inst;
+            assembledInst = handleInstruction(strip(substring(0, pos, inst)));
+        }
+
+        if (assembledInst != NULL) {
+            fprintf(output, "%s\n", assembledInst);
+        }
+    }
+
+    fclose(file);
+    fclose(output);
+
+    hashmap_free(jumpTable);
+    hashmap_free(compTable);
 }
 
 void createCompTable() {

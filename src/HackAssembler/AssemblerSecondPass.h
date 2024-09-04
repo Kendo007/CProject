@@ -5,4 +5,10 @@
 #ifndef ASSEMBLERSECONDPASS_H
 #define ASSEMBLERSECONDPASS_H
 
+#include "../../helper/hashmap.h"
+
+
+void assembleSecondPass(char* fileName, struct hashmap* st);
+
+
 #endif //ASSEMBLERSECONDPASS_H

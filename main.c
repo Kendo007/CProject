@@ -3,10 +3,11 @@
 #include <string.h>
 #include "helper/hashmap.h"
 #include "helper/myhashmap.h"
-#include "src/HackAssembler/AsssemblerFirstPass.h"
+#include "src/HackAssembler/AssemblerSecondPass.h"
+#include "src/HackAssembler/HackAssembler.h"
 #include "tests/Test.h"
 
 int main() {
-    assembleFirstPass("test.txt");
+    HackAssembler("test.txt");
 }
 
