@@ -7,8 +7,7 @@
 
 #include "../../helper/hashmap.h"
 
-typedef HASHMAP(char*, char*) hashmap;
-
-char* intToBinary(int n, char binary[]);
+void intToBinary(int n, char binary[]);
+void assembleFirstPass(char* fileName);
 
 #endif //ASSSEMBLERFIRSTPASS_H
