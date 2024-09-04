@@ -7,6 +7,6 @@
 #include "tests/Test.h"
 
 int main() {
-    assembleFirstPass("test");
+    assembleFirstPass("test.txt");
 }
 
