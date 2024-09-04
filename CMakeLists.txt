@@ -12,4 +12,6 @@ add_executable(CProject main.c
         src/HackAssembler/AsssemblerFirstPass.c
         src/HackAssembler/AsssemblerFirstPass.h
         helper/myhashmap.c
-        helper/myhashmap.h)
+        helper/myhashmap.h
+        tests/MyHashmapTest.c
+        tests/Test.h)
