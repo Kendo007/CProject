@@ -10,31 +10,15 @@
 #include "../../helper/hashmap.h"
 #include "../../helper/myhashmap.h"
 
-// Reverses a given string and pad it with 0s
-char* reverseAndPadString(char str[], int size) {
-    for (int i = 0; i < size / 2; i++) {
-        const char temp = str[i];
-        str[i] = str[size - i - 1];
-        str[size - i - 1] = temp;
+// Converts the given integer into 16-bit binary string
+char* intToBinary(unsigned int n, char binary[]) {
+    for (int i = 15; i >= 0; i--) {
+        binary[15 - i] = (n & (1 << i)) ? '1' : '0';
     }
 
+    binary[16] = '\0';
 
-
-    return str;
-}
-
-char* intToBinary(int n, char binary[]) {
-    int i = 0;
-
-    while (n > 0) {
-        // storing remainder in binary array
-        binary[i] = (n % 2) + 48;
-        n = n / 2;
-        ++i;
-    }
-
-    binary[i] = '\0';
-    return reverseString(binary, i);
+    return binary;
 }
 
 void intialiseTable(struct hashmap* symbolTable) {
