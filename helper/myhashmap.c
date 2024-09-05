@@ -36,10 +36,12 @@ const void* myhashmap_set(struct hashmap *map, const char* key, const char* valu
     const int key_size = strlen(key);
     char* key_copy = malloc(key_size + 1);
     strncpy(key_copy, key, key_size);
+    key_copy[key_size] = '\0';
 
     const int value_size = strlen(value);
     char* value_copy = malloc(value_size + 1);
     strncpy(value_copy, value, value_size);
+    value_copy[value_size] = '\0';
 
     const blob temp = {.key = key_copy, .value = value_copy};
 

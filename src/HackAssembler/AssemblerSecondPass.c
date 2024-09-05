@@ -65,8 +65,65 @@ char* handleAInstruction(char* instruction) {
     return myhashmap_get(symbolTable, usefulInstruction);
 }
 
+char* handleComp(char* instruction, int equalToPos, int semiColonPos) {
+    if (!semiColonPos) {
+        instruction = instruction + equalToPos + 1;
+    } else if (!equalToPos) {
+        instruction = substring(0, semiColonPos, instruction);
+    } else {
+        instruction = substring(equalToPos + 1, semiColonPos, instruction);
+    }
+
+    char* temp = myhashmap_get(compTable, instruction);
+    return temp;
+}
+
+char* handleDestination(char* instruction, int equalToPos) {
+    char* temp;
+
+    if (!equalToPos) {
+        temp = "";
+    } else {
+        temp = substring(0, equalToPos, instruction);
+    }
+
+    const char d1 = strchr(temp, 'A') ? '1' : '0';
+    const char d2 = strchr(temp, 'D') ? '1' : '0';
+    const char d3 = strchr(temp, 'M') ? '1' : '0';
+
+    snprintf(instruction, 5, "%c%c%c", d1, d2, d3);
+    return instruction;
+}
+
+char* handleJump(char* instruction, int semiColonPos) {
+    if (!semiColonPos) {
+        return "000";
+    }
+
+    return myhashmap_get(jumpTable, instruction + semiColonPos + 1);
+}
+
+
 char* handleCInstruction(char* instruction) {
-    return "";
+    int equalToPos = NULL, semiColonPos = NULL;
+    char* equalToLoc = strchr(instruction, '=');
+    char* semiColonLoc = strchr(instruction, ';');
+
+    if (equalToLoc)
+        equalToPos = equalToLoc - instruction;
+
+    if (semiColonLoc)
+        semiColonPos = semiColonLoc - instruction;
+
+    char instructionCopy[25];
+    char instructionCopy2[25];
+    strcpy(instructionCopy, instruction);
+    strcpy(instructionCopy2, instruction);
+
+    snprintf(instruction, 20, "111%s%s%s", handleComp(instructionCopy, equalToPos, semiColonPos),
+        handleDestination(instructionCopy2, equalToPos), handleJump(instruction, semiColonPos));
+
+    return instruction;
 }
 
 char* handleInstruction(char *instruction) {
