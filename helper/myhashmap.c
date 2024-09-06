@@ -11,7 +11,7 @@
 int user_compare(const void *a, const void *b, void *udata) {
     const blob *ba = a;
     const blob *bb = b;
-    return strcmp(ba->key, ba->key);
+    return strcmp(ba->key, bb->key);
 }
 
 uint64_t user_hash(const void *item, uint64_t seed0, uint64_t seed1) {
@@ -48,8 +48,8 @@ const void* myhashmap_set(struct hashmap *map, const char* key, const char* valu
     return hashmap_set(map, &temp);
 }
 
-char* myhashmap_get(struct hashmap *map, char* key) {
-    const blob* temp = (blob*) hashmap_get(map, &(blob) { .key = key });
+char* myhashmap_get(struct hashmap *map, const char* key) {
+    const blob* temp = (blob*) hashmap_get(map, &(blob) { .key = (char*) key });
 
     if (temp == NULL) {
         return NULL;

@@ -18,6 +18,6 @@ struct hashmap *myhashmap_new();
 
 const void* myhashmap_set(struct hashmap *map, const char* key, const char* value);
 
-char* myhashmap_get(struct hashmap *map, char* key);
+char* myhashmap_get(struct hashmap *map, const char* key);
 
 #endif //MYHASHMAP_H
