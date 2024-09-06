@@ -16,6 +16,8 @@ char* fileName;
 int fileNameLength;
 bool wroteReturn = false;
 bool wroteCall = false;
+char* currFunction = "Sys.init";
+int currFunctionLength = strlen(currFunction);
 FILE* writeFile;
 
 char kPathSeparator =
@@ -63,7 +65,9 @@ void pop(const char* Command[]) {
 
     getBaseAddress(Command);
 
-    //write("@"+Command[2]);
+    char temp[2 + c2];
+    snprintf(temp, 2 + c2, "@%s", Command[2]);
+    write(temp);
     write("D=D+A");
     write("@SP");
     write("AM=M-1");
@@ -73,7 +77,35 @@ void pop(const char* Command[]) {
 }
 
 void push(const char* Command[]) {
+    int c2 = strlen(Command[2]);
 
+    if (strcmp(Command[1], "constant") == 0) {
+        char temp[2 + c2];
+        snprintf(temp, 2 + c2, "@%s", Command[2]);
+
+        write(temp);
+        write("D=A");
+    } else if (strcmp(Command[1], "static") == 0) {
+        char temp[3 + fileNameLength + c2];
+        snprintf(temp, 3 + fileNameLength + c2, "@%s.%s", fileName, Command[2]);
+
+        write(temp);
+        write("D=M");
+    } else {
+        getBaseAddress(Command);
+
+        char temp[2 + c2];
+        snprintf(temp, 2 + c2, "@%s", Command[2]);
+
+        write(temp);
+        write("A=D+A");
+        write("D=M");
+    }
+
+    write("@SP");
+    write("M=M+1");
+    write("A=M-1");
+    write("M=D");
 }
 
 bool memoryCommand(const char* Command[]) {
@@ -89,6 +121,8 @@ bool memoryCommand(const char* Command[]) {
 
     return true;
 }
+
+
 
 void parseCommand(char* command[], char* line) {
     int count = 0;
