@@ -12,5 +12,6 @@ extern char kPathSeparator;
 void VMCodeTranslator();
 void write(const char* s);
 void parseCommand(char* command[], char* line);
+void initialiseBaseAddress();
 
 #endif //VMCODETRANSLATOR_H

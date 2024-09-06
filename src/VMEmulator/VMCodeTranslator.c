@@ -12,6 +12,8 @@
 #include "../HackAssembler/AsssemblerFirstPass.h"
 
 struct hashmap *baseAddress;
+int boolCount = 0;
+int callCount = 0;
 char* fileName;
 int fileNameLength;
 bool wroteReturn = false;
@@ -118,6 +120,64 @@ bool memoryCommand(const char* Command[]) {
         pop(Command);
     else
         return false;
+
+    return true;
+}
+
+void booleanPush(const char* jumpCondition) {
+    write("D=M-D");
+
+    write("@SP");
+    write("A=M-1");
+    write("M=-1");
+    write("@CONT" + boolCount);
+    fprintf(writeFile, "D;");
+    write(jumpCondition);
+
+    write("@SP");
+    write("A=M-1");
+    write("M=0");
+
+    char temp[11]
+    snprintf(temp, 11, "(CONT%d)", boolCount);
+    write(temp);
+
+    ++boolCount;
+}
+
+bool arthlogiCommand(const char* Command[]) {
+    if (Command[0][0] == 'n') {
+        write("@SP");
+        write("A=M-1");
+
+        if (strcmp(Command[0], "not") == 0) {
+            write("M=!M");
+        } else {
+            write("M=-M");
+        }
+    } else {
+        write("@SP");
+        write("AM=M-1");
+        write("D=M");
+        write("A=A-1");
+
+        if (strcmp(Command[0], "add") == 0)
+            write("M=D+M");
+        else if (strcmp(Command[0], "sub") == 0)
+            write("M=M-D");
+        else if (strcmp(Command[0], "and") == 0)
+            write("M=D&M");
+        else if (strcmp(Command[0], "or") == 0)
+            write("M=D|M");
+        else if (strcmp(Command[0], "eq") == 0)
+            booleanPush("JEQ");
+        else if (strcmp(Command[0], ) == 0)
+            booleanPush("JGT");
+        else if (strcmp(Command[0], ) == 0)
+            booleanPush("JLT");
+        else
+            return false;
+    }
 
     return true;
 }

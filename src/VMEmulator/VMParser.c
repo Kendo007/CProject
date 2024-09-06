@@ -23,6 +23,8 @@ int isDirectory(const char *path) {
 }
 
 void VMParser(const char *fileName) {
+    initialiseBaseAddress();
+
     if (isDirectory(fileName)) {
         DIR *dir;
         struct dirent *entry;
