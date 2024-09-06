@@ -16,4 +16,10 @@ add_executable(CProject main.c
         src/HackAssembler/AssemblerSecondPass.c
         src/HackAssembler/AssemblerSecondPass.h
         tests/MyHashmapTest.c
-        tests/Test.h)
+        tests/Test.h
+        src/VMEmulator/VMEmulator.c
+        src/VMEmulator/VMEmulator.h
+        src/VMEmulator/VMParser.c
+        src/VMEmulator/VMParser.h
+        src/VMEmulator/VMCodeTranslator.c
+        src/VMEmulator/VMCodeTranslator.h)
