@@ -4,8 +4,7 @@
 
 #ifndef VMPARSER_H
 #define VMPARSER_H
-#include <stdio.h>
 
-
+void VMParser(const char* fileName);
 
 #endif //VMPARSER_H

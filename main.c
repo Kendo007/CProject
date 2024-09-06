@@ -1,8 +1,10 @@
 
+#include <dirent.h>
 #include <stdio.h>
 #include <time.h>
 
 #include "src/HackAssembler/HackAssembler.h"
+#include "src/VMEmulator/VMParser.h"
 
 int main(int argc, char * argv[]) {
     clock_t start = clock();

@@ -13,6 +13,14 @@ struct hashmap *baseAddress;
 
 bool wroteReturn = false;
 bool wroteCall = false;
+FILE* writeFile;
+
+char kPathSeparator =
+    #ifdef _WIN32
+        '\\';
+    #else
+            '/';
+    #endif
 
 void VMCodeTranslator(const char* fileName) {
 

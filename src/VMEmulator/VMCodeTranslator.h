@@ -6,7 +6,8 @@
 #define VMCODETRANSLATOR_H
 #include <stdio.h>
 
-FILE* w;
+extern FILE* writeFile;
+extern char kPathSeparator;
 
 void VMCodeTranslator();
 
