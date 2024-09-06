@@ -10,5 +10,7 @@ extern FILE* writeFile;
 extern char kPathSeparator;
 
 void VMCodeTranslator();
+void write(const char* s);
+void parseCommand(char* command[], char* line);
 
 #endif //VMCODETRANSLATOR_H
