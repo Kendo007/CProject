@@ -182,6 +182,36 @@ bool arthlogiCommand(const char* Command[]) {
     return true;
 }
 
+bool branchingCommand(const char* Command[]) {
+    int c1 = strlen(Command[1]);
+
+    if (strcmp(Command[0], "label") == 0) {
+        char temp[4 + currFunctionLength + c1];
+        snprintf(temp, 4 + currFunctionLength + c1, "(%s$%s)", currFunction, Command[1]);
+
+        write(temp);
+    } else if (strcmp(Command[0], "goto") == 0) {
+        char temp[3 + currFunctionLength + c1];
+        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[2]);
+
+        write(temp);
+    } else if (strcmp(Command[0], "if-goto") == 0) {
+        write("@SP");
+        write("M=M-1");
+        write("A=M");
+        write("D=M");
+
+        char temp[3 + currFunctionLength + c1];
+        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[2]);
+
+        write(temp);
+        write("D;JNE");
+    } else {
+        return false;
+    }
+
+    return true;
+}
 
 
 void parseCommand(char* command[], char* line) {
