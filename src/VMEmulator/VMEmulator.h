@@ -5,6 +5,6 @@
 #ifndef VMEMULATOR_H
 #define VMEMULATOR_H
 
-void VMEmulator(char* fileName);
+void VMEmulator(const char* fileName);
 
 #endif //VMEMULATOR_H

@@ -4,6 +4,8 @@
 
 #include "VMEmulator.h"
 
-void VMEmulator(char* fileName) {
+#include "VMParser.h"
 
+void VMEmulator(const char* fileName) {
+    VMParser(fileName);
 }

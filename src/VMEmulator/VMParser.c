@@ -22,8 +22,21 @@ int isDirectory(const char *path) {
     return S_ISDIR(statusbuf.st_mode);
 }
 
+void writeInit() {
+    write("@256");
+    write("D=A");
+    write("@SP");
+    write("M=D");
+
+    const char* Command[] = {"call", "Sys.init", "0"};
+    writeCall(Command);
+}
+
 void VMParser(const char *fileName) {
     initialiseBaseAddress();
+    currFunction = malloc(sizeof(char) * 9);
+    strcpy(currFunction, "Sys.init");
+    currFunction[9] = '\0';
 
     if (isDirectory(fileName)) {
         DIR *dir;
@@ -35,6 +48,7 @@ void VMParser(const char *fileName) {
 
         writeFile = fopen(outputName, "w+");
 
+        writeInit();
         dir = opendir(fileName);
         if (dir == NULL) {
             printf("Error opening Directory: %s\n", fileName);
@@ -49,8 +63,6 @@ void VMParser(const char *fileName) {
                     snprintf(outputFile, fsize + strlen(entry->d_name) + 2, "%s%c%s", fileName, kPathSeparator, entry->d_name);
 
                     VMCodeTranslator(outputFile);
-
-                    printf("%s\n", outputFile);
                 }
             }
         }
@@ -66,8 +78,10 @@ void VMParser(const char *fileName) {
         temp[fsize - 3] = '\0';
         snprintf(outputName, fsize + 2, "%s.asm", temp);
 
-        VMCodeTranslator(outputName);
-
         writeFile = fopen(outputName, "w+");
+        VMCodeTranslator(fileName);
+
     }
+
+    free(currFunction);
 }

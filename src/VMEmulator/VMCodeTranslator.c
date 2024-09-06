@@ -4,13 +4,14 @@
 
 #include "VMCodeTranslator.h"
 
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../../helper/hashmap.h"
 #include "../../helper/myhashmap.h"
-#include "../HackAssembler/AsssemblerFirstPass.h"
+#include "../HackAssembler/AssemblerSecondPass.h"
 
 struct hashmap *baseAddress;
 int boolCount = 0;
@@ -19,8 +20,8 @@ char* fileName;
 int fileNameLength;
 bool wroteReturn = false;
 bool wroteCall = false;
-char* currFunction = "Sys.init";
-int currFunctionLength = strlen(currFunction);
+char* currFunction;
+int currFunctionLength = 8;
 FILE* writeFile;
 
 char kPathSeparator =
@@ -41,13 +42,15 @@ void getBaseAddress(const char* Command[]) {
     if (temp != NULL) {
         write(temp);
         write("D=M");
-    } else if (strcmp(Command[1], "temp") == 0) {
-        write("@5");
-    } else if (strcmp(Command[1], "pointer") == 0) {
-        write("@3");
-    }
+    } else {
+        if (strcmp(Command[1], "temp") == 0) {
+            write("@5");
+        } else if (strcmp(Command[1], "pointer") == 0) {
+            write("@3");
+        }
 
-    write("D=A");
+        write("D=A");
+    }
 }
 
 void pop(const char* Command[]) {
@@ -131,7 +134,10 @@ void booleanPush(const char* jumpCondition) {
     write("@SP");
     write("A=M-1");
     write("M=-1");
-    write("@CONT" + boolCount);
+
+    char temp[11];
+    snprintf(temp, 11, "@CONT%d", boolCount);
+    write(temp);
     fprintf(writeFile, "D;");
     write(jumpCondition);
 
@@ -139,7 +145,6 @@ void booleanPush(const char* jumpCondition) {
     write("A=M-1");
     write("M=0");
 
-    char temp[11];
     snprintf(temp, 11, "(CONT%d)", boolCount);
     write(temp);
 
@@ -184,7 +189,10 @@ bool arthlogiCommand(const char* Command[]) {
 }
 
 bool branchingCommand(const char* Command[]) {
-    int c1 = strlen(Command[1]);
+    if (Command[1] == NULL)
+        return false;
+
+    const int c1 = strlen(Command[1]);
 
     if (strcmp(Command[0], "label") == 0) {
         char temp[4 + currFunctionLength + c1];
@@ -193,9 +201,10 @@ bool branchingCommand(const char* Command[]) {
         write(temp);
     } else if (strcmp(Command[0], "goto") == 0) {
         char temp[3 + currFunctionLength + c1];
-        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[2]);
+        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[1]);
 
         write(temp);
+        write("0;JMP");
     } else if (strcmp(Command[0], "if-goto") == 0) {
         write("@SP");
         write("M=M-1");
@@ -203,7 +212,7 @@ bool branchingCommand(const char* Command[]) {
         write("D=M");
 
         char temp[3 + currFunctionLength + c1];
-        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[2]);
+        snprintf(temp, 3 + currFunctionLength + c1, "@%s$%s", currFunction, Command[1]);
 
         write(temp);
         write("D;JNE");
@@ -255,7 +264,9 @@ void commonCall() {
 
 void writeCall(const char* Command[]) {
     // Storing value of new ARG in temp variable R13
-    write("@" + atoi(Command[2]));
+    char temp1[6];
+    snprintf(temp1, 6, "@%d", atoi(Command[2]));
+    write(temp1);
     write("D=A");
     write("@SP");
     write("D=M-D");
@@ -289,8 +300,13 @@ void writeCall(const char* Command[]) {
 }
 
 void writeFunction(const char* Command[]) {
-    currFunction = (char*) Command[1];
-    currFunctionLength = strlen(currFunction);
+    free(currFunction);
+
+    currFunctionLength = strlen(Command[1]);
+    char* commandCopy = malloc(sizeof(char) * (currFunctionLength + 1));
+    strcpy(commandCopy, Command[1]);
+    commandCopy[currFunctionLength] = '\0';
+    currFunction = commandCopy;
 
     char temp[3 + currFunctionLength];
     snprintf(temp, 3 + currFunctionLength, "(%s)", currFunction);
@@ -392,10 +408,11 @@ void parseCommand(char* command[], char* line) {
         line[index - line] = '\0';
     }
 
-    for (char *p = strtok(line," "); p != NULL, count < 3; p = strtok(NULL, " ")) {
-        puts(p);
+    for (char *p = strtok(line," "); count < 3; p = strtok(NULL, " "), ++count) {
+        if (p == NULL)
+            break;
+
         command[count] = p;
-        ++count;
     }
 }
 
@@ -405,7 +422,11 @@ void translate(const char* Command[]) {
 
     fprintf(writeFile, "// ");
     for (int i = 0; Command[i] != NULL; ++i) {
+        if (i == 3)
+            break;
+
         fprintf(writeFile, Command[i]);
+        fprintf(writeFile, " ");
     }
     fprintf(writeFile, "\n");
 
@@ -416,21 +437,36 @@ void translate(const char* Command[]) {
 }
 
 
-void VMCodeTranslator(char* filePath) {
+void VMCodeTranslator(const char* filePath) {
     const int separatorIndex = strrchr(filePath, kPathSeparator) - filePath;
     const int dotIndex = strrchr(filePath, '.') - filePath;
-    fileName = substring(separatorIndex, dotIndex, filePath);
+
     fileNameLength = dotIndex - separatorIndex;
+    char* temp = malloc(sizeof(char) * (fileNameLength + 1));
+    strncpy(temp, filePath + separatorIndex + 1, fileNameLength);
+    temp[fileNameLength - 1] = '\0';
+
+    fileName = temp;
 
     char * line = NULL;
     size_t len = 0;
 
     FILE* inputFile = fopen(filePath, "r");
 
-    while (getline(&line, &len, inputFile) != -1) {
-        char* Command[3];
-        parseCommand(Command, line);
+    if (inputFile == NULL) {
+        printf("Could not open file %s\n", filePath);
+        fclose(inputFile); free(line); free(temp);
+        exit(1);
     }
+
+    while (getline(&line, &len, inputFile) != -1) {
+        char* Command[3] = { NULL };
+        char* inst = strip(line);
+        parseCommand(Command, inst);
+        translate(Command);
+    }
+
+    fclose(inputFile); free(temp);
 }
 
 void initialiseBaseAddress() {

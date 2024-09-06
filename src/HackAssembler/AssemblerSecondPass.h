@@ -9,6 +9,7 @@
 
 
 void assembleSecondPass(char* fileName, struct hashmap* st);
+char* strip(char* str);
 
 
 #endif //ASSEMBLERSECONDPASS_H
